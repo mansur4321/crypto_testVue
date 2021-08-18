@@ -1,16 +1,28 @@
 <template>
 	<div class="wrapper">
 		<div class="newCurrency">
-			<input type="text" placeholder="name" class="newCurrency__add">
-			<a href="#" class="newCurrency__btnAdd">Добавить</a>
+			<input
+			@keydown.enter="tickerAdd"
+			type="text" placeholder="name" class="newCurrency__add"
+			v-model="ticker">
+			<a 
+			@click="tickerAdd"
+			href="#" class="newCurrency__btnAdd">Добавить</a>
 		</div>
 
-		<div class="list-currency">
+		<div 
+		v-if="tickers.length"
+		class="list-currency">
 			<hr style="width: 800px;">
-			<div class="currency">
-				<p class="currency__name">USD</p>
+			<div 
+			v-for="t of tickers"
+			:key="t.name"
+			class="currency">
+				<p class="currency__name">{{t.name}} - USD</p>
 				<p class="currency__price">-</p>
-				<a href="#" class="currency__btnDel">Удалить</a>
+				<div class="btn"><a
+				@click="tickerDelete(t.name)"
+				href="#" class="currency__btnDel">Удалить</a></div>
 			</div>
 			<hr style="width: 800px;">
 		</div>
@@ -20,6 +32,31 @@
 <script>
 
 export default {
+	data() {
+		return {
+			ticker: '',
+
+			tickers: [{
+				name: '',
+				price: ''
+			},]
+		}
+	},
+
+	methods: {
+		tickerAdd() {
+			const newTicker = {
+				name: this.ticker,
+				price: '-'
+			}
+
+			this.tickers.push(newTicker);
+		},
+
+		tickerDelete(tickerKey) {
+			this.tickers = this.tickers.filter(t => t.name != tickerKey);
+		}
+	}
   
 };
 </script>
