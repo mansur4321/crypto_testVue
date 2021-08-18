@@ -61,14 +61,15 @@ body {
 }
 
 .wrapper .currency__name {
-  font-size: 22px;
+  font-size: 24px;
   text-align: center;
   margin: 0px;
 }
 
 .wrapper .currency__price {
   text-align: center;
-  font-size: 19px;
+  font-size: 22px;
+  margin-bottom: 35px;
 }
 
 .wrapper .currency__btnDel {
@@ -83,4 +84,8 @@ body {
   max-width: 200px;
   margin: 0 auto;
   text-align: center;
+}
+
+.wrapper .bdColor {
+  border: 2.5px solid #B43ED1;
 }
