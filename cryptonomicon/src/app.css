@@ -45,8 +45,6 @@ body {
   display: flex;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
   -webkit-box-align: start;
       -ms-flex-align: start;
           align-items: flex-start;
@@ -59,17 +57,19 @@ body {
   border: 2px solid #717171;
   padding: 35px;
   border-radius: 10px;
+  margin: 0px 40px 20px 0px;
 }
 
 .wrapper .currency__name {
-  font-size: 22px;
+  font-size: 24px;
   text-align: center;
   margin: 0px;
 }
 
 .wrapper .currency__price {
   text-align: center;
-  font-size: 19px;
+  font-size: 22px;
+  margin-bottom: 35px;
 }
 
 .wrapper .currency__btnDel {
@@ -78,4 +78,14 @@ body {
   text-decoration: none;
   padding: 11px 22px;
   border-radius: 5px;
+}
+
+.btn {
+  max-width: 200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.wrapper .bdColor {
+  border: 2.5px solid #B43ED1;
 }
