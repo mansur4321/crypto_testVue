@@ -3,8 +3,10 @@
 		<div class="newCurrency">
 			<input
 			@keydown.enter="tickerAdd"
+			@input="warning_delValue"
 			type="text" placeholder="name" class="newCurrency__add"
 			v-model="ticker">
+			<span>{{warning}}</span>
 			<a 
 			@click="tickerAdd"
 			href="#" class="newCurrency__btnAdd">Добавить</a>
@@ -45,31 +47,40 @@ export default {
 				price: ''
 			},],
 			sel: null,
+			warning: '',
 		};
 	},
 
 	methods: {
 		tickerAdd() {
-			const newTicker = {
-				name: this.ticker,
-				price: '-'
+
+			if (this.tickers.find(t => t.name.toUpperCase() == this.ticker.toUpperCase()) == undefined) {
+				const newTicker = {
+					name: this.ticker,
+					price: '-'
+				}
+
+				this.tickers.push(newTicker);
+
+				setInterval( async () => {
+					const s = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=${newTicker.name}&tsyms=USD&api_key=b4fa1f778f7b1ea5fb50ac826b38e1eb7268f6d708dcb1cd72811a30d2efc3cc`);
+				
+					let value = await s.json();
+					this.tickers.find(t => t.name == newTicker.name).price = value.USD;
+				}, 500);
+			}else {
+				this.warning = 'Такая валюта уже есть';
 			}
+		},
 
-			this.tickers.push(newTicker);
-
-			setInterval( async () => {
-				const s = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=${newTicker.name}&tsyms=USD&api_key=b4fa1f778f7b1ea5fb50ac826b38e1eb7268f6d708dcb1cd72811a30d2efc3cc`);
-			
-				let value = await s.json();
-				this.tickers.find(t => t.name == newTicker.name).price = value.USD;
-			}, 500);
+		warning_delValue() {
+			this.warning = '';
 		},
 
 		tickerDelete(tickerKey) {
 			this.tickers = this.tickers.filter(t => t.name != tickerKey);
 		}
-	}
-  
+	},  
 };
 </script>
 
