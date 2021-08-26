@@ -3,6 +3,7 @@
 		<div class="newCurrency">
 			<input
 			@keydown.enter="tickerAdd"
+			@input="warning_delValue"
 			type="text" placeholder="name" class="newCurrency__add"
 			v-model="ticker">
 			<span>{{warning}}</span>
@@ -53,7 +54,7 @@ export default {
 	methods: {
 		tickerAdd() {
 
-			if (this.tickers.find(t => t.name == this.ticker) == undefined) {
+			if (this.tickers.find(t => t.name.toUpperCase() == this.ticker.toUpperCase()) == undefined) {
 				const newTicker = {
 					name: this.ticker,
 					price: '-'
@@ -72,16 +73,14 @@ export default {
 			}
 		},
 
+		warning_delValue() {
+			this.warning = '';
+		},
+
 		tickerDelete(tickerKey) {
 			this.tickers = this.tickers.filter(t => t.name != tickerKey);
 		}
-	},
-
-	// updated: function () {
-	// 	this.warning = '';
-	// },
-
-  
+	},  
 };
 </script>
 
