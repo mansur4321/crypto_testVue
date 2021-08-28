@@ -34,6 +34,22 @@ span {
   font-size: 22px;
 }
 
+.wrapper .newCurrency__help {
+  display: flex;
+  justify-content: space-between;
+  width: 250px;
+  margin: 10px 0 5px;
+}
+
+.wrapper .newCurrency__help .newCurrency__help_elem {
+  padding: 5px 7px;
+  background: #BEBEBE;
+  border-radius: 15px;
+  margin-right: 5px;
+  color: #fff;
+  font-size: 14px;
+}
+
 .wrapper .newCurrency__btnAdd {
   margin-top: 20px;
   color: #fff;
@@ -92,4 +108,8 @@ span {
 
 .wrapper .bdColor {
   border: 2.5px solid #B43ED1;
+}
+
+.wrapper .newCurrency__help .dsNone {
+  display: none;
 }
