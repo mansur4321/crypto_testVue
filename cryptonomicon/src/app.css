@@ -118,3 +118,7 @@ span {
 .wrapper .newCurrency__help .dcNone {
   display: none;
 }
+
+.wrapper .ddNone {
+  display: none;
+}
