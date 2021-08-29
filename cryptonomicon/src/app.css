@@ -8,6 +8,7 @@ body {
 
 span {
   color:  red;
+  margin-right: 10px;
 }
 
 .wrapper .newCurrency {
@@ -111,5 +112,9 @@ span {
 }
 
 .wrapper .newCurrency__help .dsNone {
+  display: none;
+}
+
+.wrapper .newCurrency__help .dcNone {
   display: none;
 }
