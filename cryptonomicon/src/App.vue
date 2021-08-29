@@ -11,34 +11,38 @@
 				<div 
 				:class="{
 					'dsNone': ticker == '',
+					'dcNone': helpValueList[0] == '',
 				}"
 				class="newCurrency__help_elem"
 				@click="replace(0); tickerAdd();"
-				>{{helpValue[0]}}</div>
+				>{{helpValueList[0]}}</div>
 
 				<div		
 				:class="{
 					'dsNone': ticker == '',
+					'dcNone': helpValueList[1] == '',
 				}"
 			 	class="newCurrency__help_elem"
 			 	@click="replace(1); tickerAdd();"
-			 	>{{helpValue[1]}}</div>
+			 	>{{helpValueList[1]}}</div>
 
 				<div			
 				:class="{
 					'dsNone': ticker == '',
+					'dcNone': helpValueList[2] == '',
 				}"
 			 	class="newCurrency__help_elem" 
 			 	@click="replace(2); tickerAdd();"
-			 	>{{helpValue[2]}}</div>
+			 	>{{helpValueList[2]}}</div>
 
 				<div			
 				:class="{
 					'dsNone': ticker == '',
+					'dcNone': helpValueList[3] == '',
 				}"
 				class="newCurrency__help_elem"
 				@click="replace(3); tickerAdd();"
-				>{{helpValue[3]}}</div>
+				>{{helpValueList[3]}}</div>
 
 			</div>
 			<span>{{warning}}</span>
@@ -50,6 +54,12 @@
 		<div 
 		v-if="tickers.length"
 		class="list-currency">
+			<span style="color: #A556B6">FILTER -</span>
+			<input 
+			v-model="tickerFilter"
+			@input="filter"
+			type="text" class="filter-currency">
+
 			<hr style="width: 800px;">
 			<div 
 			v-for="t of tickers"
@@ -58,6 +68,7 @@
 			class="currency"
 			:class="{
 				'bdColor': sel == t,
+				'dcNone': t.filter == 0,
 			}">
 				<p class="currency__name">{{t.name}} - USD</p>
 				<p class="currency__price">{{t.price}}</p>
@@ -79,16 +90,19 @@ export default {
 
 			tickers: [{
 				name: '',
-				price: ''
+				price: '',
+				filter: 1,
 			},],
 
-			helpValue: ['','','',''],
+			helpValueList: ['','','',''],
 
 			sel: null,
 
 			warning: '',
 
 			listTicker: '',
+
+			tickerFilter: '',
 		};
 	},
 
@@ -125,7 +139,7 @@ export default {
 		},
 
 		replace(key) {
-			this.ticker = this.helpValue[key];
+			this.ticker = this.helpValueList[key];
 		},
 
 		help() {
@@ -137,12 +151,41 @@ export default {
 				if(this.listTicker[`${val}`].Symbol.indexOf(`${this.ticker}`) + 1) {
 
 					if (key < 4) {
-						this.helpValue[key] = this.listTicker[`${val}`].Symbol;
+						console.log(121212);
+						this.helpValueList[key] = this.listTicker[`${val}`].Symbol;
 
 						key++;
+
+
+						if (key < 4) {	
+
+							for (let i = key; i < 4; i++) {
+								this.helpValueList[i] = '';
+							}
+						}
 					} else{
 						break;
 					}
+				}
+			}
+
+
+			if (this.ticker == 0) {
+				for (let i = 0; i < 4; i++) {
+					this.helpValueList[i] = '';
+				}
+			}
+		},
+
+		filter() {
+
+			for (var i = 0; i < this.tickers.length; i++) {
+				const upperCoin = this.tickers[i].name.toUpperCase();
+
+				if (upperCoin.indexOf(this.tickerFilter.toUpperCase()) + 1) {
+					this.tickers[i].filter = 1;
+				} else{
+					this.tickers[i].filter = 0;
 				}
 			}
 		},
