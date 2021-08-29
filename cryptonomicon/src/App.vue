@@ -57,7 +57,7 @@
 			<span style="color: #A556B6">FILTER -</span>
 			<input 
 			v-model="tickerFilter"
-			@input="filter"
+			@input="filterCoin"
 			type="text" class="filter-currency">
 
 			<hr style="width: 800px;">
@@ -68,7 +68,7 @@
 			class="currency"
 			:class="{
 				'bdColor': sel == t,
-				'dcNone': t.filter == 0,
+				'ddNone': t.filter == 0,
 			}">
 				<p class="currency__name">{{t.name}} - USD</p>
 				<p class="currency__price">{{t.price}}</p>
@@ -151,7 +151,6 @@ export default {
 				if(this.listTicker[`${val}`].Symbol.indexOf(`${this.ticker}`) + 1) {
 
 					if (key < 4) {
-						console.log(121212);
 						this.helpValueList[key] = this.listTicker[`${val}`].Symbol;
 
 						key++;
@@ -177,7 +176,7 @@ export default {
 			}
 		},
 
-		filter() {
+		filterCoin() {
 
 			for (var i = 0; i < this.tickers.length; i++) {
 				const upperCoin = this.tickers[i].name.toUpperCase();
