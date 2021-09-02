@@ -101,6 +101,24 @@ span {
   border-radius: 5px;
 }
 
+.wrapper .filter .filter__page .filter__page_button {
+  padding: 7px 10px;
+  background: #B43ED1;
+  border-radius: 15px;
+  margin-right: 10px;
+  color: #fff;
+} 
+
+.wrapper .filter .filter__page {
+  margin-bottom: 20px;
+  transition: .2s;
+}
+
+.wrapper .filter {
+  display: flex;
+  flex-direction: column;
+}
+
 .btn {
   max-width: 200px;
   margin: 0 auto;

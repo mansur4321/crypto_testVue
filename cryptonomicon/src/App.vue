@@ -47,19 +47,33 @@
 			</div>
 			<span>{{warning}}</span>
 			<a 
-			@click="tickerAdd"
+			@click="tickerAdd()"
 			href="#" class="newCurrency__btnAdd">Добавить</a>
 		</div>
 
 		<div 
 		v-if="tickers.length"
 		class="list-currency">
-			<span style="color: #A556B6">FILTER -</span>
-			<input 
-			v-model="tickerFilter"
-			@input="filterCoin"
-			type="text" class="filter-currency">
+			<div class="filter">
+				<div class="filter__page">
+					<a 
+					v-if="page > 1"
+					@click="pageDown(); filterCoin();"
+					class="pageButton-currency-back filter__page_button">back</a>
+					<a 
+					v-if="page * 3 < numLastTicker"
+					@click="pageUp(); filterCoin();"
+					class="pageButton-currency-next filter__page_button">next</a>
+				</div>
 
+				<div class="filter__coin">
+					<span style="color: #A556B6">FILTER -</span>
+					<input 
+					v-model="tickerFilter"
+					@input="filterCoin(); nullPage();"
+					type="text" class="filter-currency">
+				</div>
+			</div>
 			<hr style="width: 800px;">
 			<div 
 			v-for="t of tickers"
@@ -78,7 +92,7 @@
 			</div>
 			<hr style="width: 800px;">
 		</div>
-	</div>			
+	</div>		
 </template>
 
 <script>
@@ -103,6 +117,10 @@ export default {
 			listTicker: '',
 
 			tickerFilter: '',
+
+			page: 1,
+
+			numLastTicker: null,
 		};
 	},
 
@@ -111,8 +129,11 @@ export default {
 		let list = await w.json();
 
 		this.listTicker = list.Data;
-		console.log(this.listTicker);
 	},
+
+	// updated: function () {
+
+	// }
 
 	methods: {
 		tickerAdd() {
@@ -170,6 +191,7 @@ export default {
 
 
 			if (this.ticker == 0) {
+
 				for (let i = 0; i < 4; i++) {
 					this.helpValueList[i] = '';
 				}
@@ -181,12 +203,37 @@ export default {
 			for (var i = 0; i < this.tickers.length; i++) {
 				const upperCoin = this.tickers[i].name.toUpperCase();
 
+
 				if (upperCoin.indexOf(this.tickerFilter.toUpperCase()) + 1) {
 					this.tickers[i].filter = 1;
 				} else{
 					this.tickers[i].filter = 0;
 				}
 			}
+
+
+			this.filterPage();
+		},
+
+		filterPage() {
+			let tickersPage = this.tickers.filter(t => t.filter == 1)
+			this.numLastTicker = tickersPage.length;
+			const amountCoinInPage = (this.page * 3) - 1;
+ 
+
+			for (let i = 0; i < tickersPage.length; i++) {
+
+				if (i <= amountCoinInPage && i > amountCoinInPage - 3) {
+					this.tickers.find(t => t.name == tickersPage[i].name).filter = 1;
+				} else{
+					this.tickers.find(t => t.name == tickersPage[i].name).filter = 0;
+				}
+			}			
+		},
+
+		nullPage() {
+			this.page = 1;
+			this.filterCoin();
 		},
 
 		warning_delValue() {
@@ -195,6 +242,14 @@ export default {
 
 		tickerDelete(tickerKey) {
 			this.tickers = this.tickers.filter(t => t.name != tickerKey);
+		},
+
+		pageUp() {
+			this.page += 1;
+		},
+
+		pageDown() {
+			this.page -= 1;
 		}
 	},  
 };
