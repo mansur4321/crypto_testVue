@@ -2,7 +2,7 @@
 	<div class="wrapper">
 		<div class="newCurrency">
 			<input
-			@keydown.enter="tickerAdd"
+			@keydown.enter="tickerAdd(filterCoin)"
 			@input="warning_delValue(); help();"
 			type="text" placeholder="name" class="newCurrency__add"
 			v-model="ticker">
@@ -47,7 +47,7 @@
 			</div>
 			<span>{{warning}}</span>
 			<a 
-			@click="tickerAdd()"
+			@click="tickerAdd(filterCoin)"
 			href="#" class="newCurrency__btnAdd">Добавить</a>
 		</div>
 
@@ -70,7 +70,7 @@
 					<span style="color: #A556B6">FILTER -</span>
 					<input 
 					v-model="tickerFilter"
-					@input="filterCoin(); nullPage();"
+					@input="nullPage();"
 					type="text" class="filter-currency">
 				</div>
 			</div>
@@ -124,19 +124,35 @@ export default {
 		};
 	},
 
+	watch: {
+		tickerFilter: function() {
+			this.filterCoin()
+		},
+	},
+
 	created: async function () {
 		const w = await fetch('https://min-api.cryptocompare.com/data/all/coinlist?summary=true');
 		let list = await w.json();
 
 		this.listTicker = list.Data;
+
+		this.tickers = JSON.parse(sessionStorage.tickers);
+		this.tickers.forEach(ticker => {
+			this.updateValueCoin(ticker.name);
+		})
 	},
 
-	// updated: function () {
-
-	// }
-
 	methods: {
-		tickerAdd() {
+		updateValueCoin(Tname) {
+			setInterval( async () => {
+				const s = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=${Tname}&tsyms=USD&api_key=b4fa1f778f7b1ea5fb50ac826b38e1eb7268f6d708dcb1cd72811a30d2efc3cc`);
+				let value = await s.json();
+
+				this.tickers.find(t => t.name == Tname).price = value.USD;
+			}, 10000);
+		},
+
+		tickerAdd(filterCallback) {
 
 			if (this.tickers.find(t => t.name.toUpperCase() == this.ticker.toUpperCase()) == undefined) {
 				const newTicker = {
@@ -145,18 +161,17 @@ export default {
 				}
 
 				this.tickers.push(newTicker);
+				this.updateValueCoin(newTicker.name);
 
-				setInterval( async () => {
-					const s = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=${newTicker.name}&tsyms=USD&api_key=b4fa1f778f7b1ea5fb50ac826b38e1eb7268f6d708dcb1cd72811a30d2efc3cc`);
-					let value = await s.json();
-
-					this.tickers.find(t => t.name == newTicker.name).price = value.USD;
-				}, 500);
+				sessionStorage.tickers = JSON.stringify(this.tickers);
 
 				this.ticker = '';
 			}else {
 				this.warning = 'Такая валюта уже есть';
 			}
+
+
+			filterCallback();
 		},
 
 		replace(key) {
