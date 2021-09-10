@@ -2,7 +2,7 @@
 	<div class="wrapper">
 		<div class="newCurrency">
 			<input
-			@keydown.enter="tickerAdd(filterCoin)"
+			@keydown.enter="tickerAdd"
 			@input="warning_delValue(); help();"
 			type="text" placeholder="name" class="newCurrency__add"
 			v-model="ticker">
@@ -14,7 +14,7 @@
 					'dcNone': helpValueList[0] == '',
 				}"
 				class="newCurrency__help_elem"
-				@click="replace(0); tickerAdd();"
+				@click="replace(0)"
 				>{{helpValueList[0]}}</div>
 
 				<div		
@@ -23,7 +23,7 @@
 					'dcNone': helpValueList[1] == '',
 				}"
 			 	class="newCurrency__help_elem"
-			 	@click="replace(1); tickerAdd();"
+			 	@click="replace(1)"
 			 	>{{helpValueList[1]}}</div>
 
 				<div			
@@ -32,7 +32,7 @@
 					'dcNone': helpValueList[2] == '',
 				}"
 			 	class="newCurrency__help_elem" 
-			 	@click="replace(2); tickerAdd();"
+			 	@click="replace(2)"
 			 	>{{helpValueList[2]}}</div>
 
 				<div			
@@ -41,13 +41,13 @@
 					'dcNone': helpValueList[3] == '',
 				}"
 				class="newCurrency__help_elem"
-				@click="replace(3); tickerAdd();"
+				@click="replace(3)"
 				>{{helpValueList[3]}}</div>
 
 			</div>
 			<span>{{warning}}</span>
 			<a 
-			@click="tickerAdd(filterCoin)"
+			@click="tickerAdd"
 			href="#" class="newCurrency__btnAdd">Добавить</a>
 		</div>
 
@@ -58,11 +58,11 @@
 				<div class="filter__page">
 					<a 
 					v-if="page > 1"
-					@click="pageDown(); filterCoin();"
+					@click="pageDown"
 					class="pageButton-currency-back filter__page_button">back</a>
 					<a 
 					v-if="page * 3 < numLastTicker"
-					@click="pageUp(); filterCoin();"
+					@click="pageUp"
 					class="pageButton-currency-next filter__page_button">next</a>
 				</div>
 
@@ -70,7 +70,7 @@
 					<span style="color: #A556B6">FILTER -</span>
 					<input 
 					v-model="tickerFilter"
-					@input="nullPage();"
+					
 					type="text" class="filter-currency">
 				</div>
 			</div>
@@ -124,13 +124,51 @@ export default {
 		};
 	},
 
+	computed: {
+		amountCoinInPage() {
+			return (this.page * 3) - 1;
+		} 
+	},
+
 	watch: {
 		tickerFilter: function() {
-			this.filterCoin()
+			this.page = 1;
+			this.filterCoin();
+
+			window.history.pushState(
+				null,
+				document.title,
+				`${window.location.pathname}?filter=${this.tickerFilter}&page=${this.page}`
+			);
 		},
+
+		page() {
+			this.filterCoin();
+
+			window.history.pushState(
+				null,
+				document.title,
+				`${window.location.pathname}?filter=${this.tickerFilter}&page=${this.page}`
+			);
+		}
 	},
 
 	created: async function () {
+		const windowData = Object.fromEntries(
+			new URL(window.location).searchParams.entries()
+		);
+
+
+		if (windowData.filter) {
+			this.tickerFilter = windowData.filter;
+		}
+
+		if (windowData.page) {
+			this.page = windowData.page;
+			console.log(this.page);
+		}
+
+
 		const w = await fetch('https://min-api.cryptocompare.com/data/all/coinlist?summary=true');
 		let list = await w.json();
 
@@ -140,6 +178,8 @@ export default {
 		this.tickers.forEach(ticker => {
 			this.updateValueCoin(ticker.name);
 		})
+
+		this.filterCoin();
 	},
 
 	methods: {
@@ -152,7 +192,7 @@ export default {
 			}, 10000);
 		},
 
-		tickerAdd(filterCallback) {
+		tickerAdd() {
 
 			if (this.tickers.find(t => t.name.toUpperCase() == this.ticker.toUpperCase()) == undefined) {
 				const newTicker = {
@@ -171,11 +211,12 @@ export default {
 			}
 
 
-			filterCallback();
+			this.filterCoin();
 		},
 
 		replace(key) {
 			this.ticker = this.helpValueList[key];
+			this.tickerAdd();
 		},
 
 		help() {
@@ -198,6 +239,7 @@ export default {
 								this.helpValueList[i] = '';
 							}
 						}
+
 					} else{
 						break;
 					}
@@ -233,22 +275,16 @@ export default {
 		filterPage() {
 			let tickersPage = this.tickers.filter(t => t.filter == 1)
 			this.numLastTicker = tickersPage.length;
-			const amountCoinInPage = (this.page * 3) - 1;
  
 
 			for (let i = 0; i < tickersPage.length; i++) {
 
-				if (i <= amountCoinInPage && i > amountCoinInPage - 3) {
+				if (i <= this.amountCoinInPage && i > this.amountCoinInPage - 3) {
 					this.tickers.find(t => t.name == tickersPage[i].name).filter = 1;
 				} else{
 					this.tickers.find(t => t.name == tickersPage[i].name).filter = 0;
 				}
 			}			
-		},
-
-		nullPage() {
-			this.page = 1;
-			this.filterCoin();
 		},
 
 		warning_delValue() {
