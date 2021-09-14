@@ -3,7 +3,6 @@
 		<div class="newCurrency">
 			<input
 			@keydown.enter="tickerAdd"
-			@input="warning_delValue(); help();"
 			type="text" placeholder="name" class="newCurrency__add"
 			v-model="ticker">
 			<div 
@@ -70,7 +69,6 @@
 					<span style="color: #A556B6">FILTER -</span>
 					<input 
 					v-model="tickerFilter"
-					
 					type="text" class="filter-currency">
 				</div>
 			</div>
@@ -127,10 +125,30 @@ export default {
 	computed: {
 		amountCoinInPage() {
 			return (this.page * 3) - 1;
-		} 
+		},
+
+		
+		maxCoinPreviousPage() {
+			return (this.page - 1) * 3;
+		},
+
+		windowData() {
+			return Object.fromEntries(
+				new URL(window.location).searchParams.entries()
+			);
+		},
 	},
 
 	watch: {
+		ticker() {
+			this.warning_delValue();
+			this.help();
+		},
+
+		tickers() {
+			this.filterCoin();
+		},
+
 		tickerFilter: function() {
 			this.page = 1;
 			this.filterCoin();
@@ -154,17 +172,13 @@ export default {
 	},
 
 	created: async function () {
-		const windowData = Object.fromEntries(
-			new URL(window.location).searchParams.entries()
-		);
 
-
-		if (windowData.filter) {
-			this.tickerFilter = windowData.filter;
+		if (this.windowData.filter) {
+			this.tickerFilter = this.windowData.filter;
 		}
 
-		if (windowData.page) {
-			this.page = windowData.page;
+		if (this.windowData.page) {
+			this.page = this.windowData.page;
 			console.log(this.page);
 		}
 
@@ -275,7 +289,7 @@ export default {
 		filterPage() {
 			let tickersPage = this.tickers.filter(t => t.filter == 1)
 			this.numLastTicker = tickersPage.length;
- 
+
 
 			for (let i = 0; i < tickersPage.length; i++) {
 
@@ -293,6 +307,12 @@ export default {
 
 		tickerDelete(tickerKey) {
 			this.tickers = this.tickers.filter(t => t.name != tickerKey);
+			this.numLastTicker -= 1;
+
+
+			if (this.numLastTicker <= this.maxCoinPreviousPage) {
+				this.pageDown();
+			}
 		},
 
 		pageUp() {
