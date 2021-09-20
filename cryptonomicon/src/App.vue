@@ -95,6 +95,8 @@
 
 <script>
 
+import {loadTicker} from './api.js';
+
 export default {
 	data() {
 		return {
@@ -147,6 +149,12 @@ export default {
 
 		tickers() {
 			this.filterCoin();
+			this.numLastTicker -= 1;
+
+
+			if (this.numLastTicker <= this.maxCoinPreviousPage) {
+				this.pageDown();
+			}
 		},
 
 		tickerFilter: function() {
@@ -179,31 +187,44 @@ export default {
 
 		if (this.windowData.page) {
 			this.page = this.windowData.page;
-			console.log(this.page);
 		}
 
 
-		const w = await fetch('https://min-api.cryptocompare.com/data/all/coinlist?summary=true');
+		const w = await fetch(
+				'https://min-api.cryptocompare.com/data/all/coinlist?summary=true'
+			);
 		let list = await w.json();
 
 		this.listTicker = list.Data;
 
 		this.tickers = JSON.parse(sessionStorage.tickers);
-		this.tickers.forEach(ticker => {
-			this.updateValueCoin(ticker.name);
-		})
+		setInterval(this.updateValueCoin, 10000);
 
 		this.filterCoin();
 	},
 
 	methods: {
-		updateValueCoin(Tname) {
-			setInterval( async () => {
-				const s = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=${Tname}&tsyms=USD&api_key=b4fa1f778f7b1ea5fb50ac826b38e1eb7268f6d708dcb1cd72811a30d2efc3cc`);
-				let value = await s.json();
+		formatPrice(price) {
 
-				this.tickers.find(t => t.name == Tname).price = value.USD;
-			}, 10000);
+			if (price === "-" || price == undefined) {
+				return price;
+			}
+
+
+			return price > 1 ? price.toFixed(2) : price.toPrecision();
+		},
+
+		async updateValueCoin() {
+
+			if (!this.tickers) {return}
+
+
+			const dataExchange = await loadTicker(this.tickers.map(t => t.name));
+
+			this.tickers.forEach(ticker => {
+				const price = dataExchange[ticker.name.toUpperCase()];
+				ticker.price = this.formatPrice(price) ?? '-';
+			})
 		},
 
 		tickerAdd() {
@@ -215,7 +236,7 @@ export default {
 				}
 
 				this.tickers.push(newTicker);
-				this.updateValueCoin(newTicker.name);
+				setInterval(this.updateValueCoin, 10000);
 
 				sessionStorage.tickers = JSON.stringify(this.tickers);
 
@@ -307,12 +328,7 @@ export default {
 
 		tickerDelete(tickerKey) {
 			this.tickers = this.tickers.filter(t => t.name != tickerKey);
-			this.numLastTicker -= 1;
-
-
-			if (this.numLastTicker <= this.maxCoinPreviousPage) {
-				this.pageDown();
-			}
+			sessionStorage.tickers = JSON.stringify(this.tickers);
 		},
 
 		pageUp() {
