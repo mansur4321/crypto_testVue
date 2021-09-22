@@ -95,7 +95,7 @@
 
 <script>
 
-import {loadTicker} from './api.js';
+import {subTicker, unsubTicker} from './api.js';
 
 export default {
 	data() {
@@ -198,7 +198,13 @@ export default {
 		this.listTicker = list.Data;
 
 		this.tickers = JSON.parse(sessionStorage.tickers);
-		setInterval(this.updateValueCoin, 10000);
+		this.tickers.forEach( ticker => {
+			subTicker(ticker.name, 
+				(tickerName, newPrice) => {
+					this.updateTicker(tickerName, newPrice)
+				})
+			}
+		)
 
 		this.filterCoin();
 	},
@@ -214,17 +220,8 @@ export default {
 			return price > 1 ? price.toFixed(2) : price.toPrecision();
 		},
 
-		async updateValueCoin() {
-
-			if (!this.tickers) {return}
-
-
-			const dataExchange = await loadTicker(this.tickers.map(t => t.name));
-
-			this.tickers.forEach(ticker => {
-				const price = dataExchange[ticker.name.toUpperCase()];
-				ticker.price = this.formatPrice(price) ?? '-';
-			})
+		updateTicker(tickerNameNew, price) {
+			this.tickers.filter(t => t.name == tickerNameNew).forEach(t => t.price = price);
 		},
 
 		tickerAdd() {
@@ -236,7 +233,12 @@ export default {
 				}
 
 				this.tickers.push(newTicker);
-				setInterval(this.updateValueCoin, 10000);
+
+				subTicker(newTicker.name, 
+					(tickerName, newPrice) => {
+						this.updateTicker(tickerName, newPrice)
+					}
+				)
 
 				sessionStorage.tickers = JSON.stringify(this.tickers);
 
@@ -329,6 +331,8 @@ export default {
 		tickerDelete(tickerKey) {
 			this.tickers = this.tickers.filter(t => t.name != tickerKey);
 			sessionStorage.tickers = JSON.stringify(this.tickers);
+
+			unsubTicker(tickerKey);
 		},
 
 		pageUp() {
