@@ -221,7 +221,9 @@ export default {
 		},
 
 		updateTicker(tickerNameNew, price) {
-			this.tickers.filter(t => t.name == tickerNameNew).forEach(t => t.price = price);
+			this.tickers
+				.filter(t => t.name == tickerNameNew)
+					.forEach(t => t.price = price);
 		},
 
 		tickerAdd() {
