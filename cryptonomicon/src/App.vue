@@ -3,7 +3,6 @@
 		<div class="newCurrency">
 			<input
 			@keydown.enter="tickerAdd"
-			@input="warning_delValue(); help();"
 			type="text" placeholder="name" class="newCurrency__add"
 			v-model="ticker">
 			<div 
@@ -70,7 +69,6 @@
 					<span style="color: #A556B6">FILTER -</span>
 					<input 
 					v-model="tickerFilter"
-					
 					type="text" class="filter-currency">
 				</div>
 			</div>
@@ -96,6 +94,8 @@
 </template>
 
 <script>
+
+import {subTicker, unsubTicker} from './api.js';
 
 export default {
 	data() {
@@ -127,10 +127,36 @@ export default {
 	computed: {
 		amountCoinInPage() {
 			return (this.page * 3) - 1;
-		} 
+		},
+
+		
+		maxCoinPreviousPage() {
+			return (this.page - 1) * 3;
+		},
+
+		windowData() {
+			return Object.fromEntries(
+				new URL(window.location).searchParams.entries()
+			);
+		},
 	},
 
 	watch: {
+		ticker() {
+			this.warning_delValue();
+			this.help();
+		},
+
+		tickers() {
+			this.filterCoin();
+			this.numLastTicker -= 1;
+
+
+			if (this.numLastTicker <= this.maxCoinPreviousPage) {
+				this.pageDown();
+			}
+		},
+
 		tickerFilter: function() {
 			this.page = 1;
 			this.filterCoin();
@@ -154,42 +180,50 @@ export default {
 	},
 
 	created: async function () {
-		const windowData = Object.fromEntries(
-			new URL(window.location).searchParams.entries()
-		);
 
-
-		if (windowData.filter) {
-			this.tickerFilter = windowData.filter;
+		if (this.windowData.filter) {
+			this.tickerFilter = this.windowData.filter;
 		}
 
-		if (windowData.page) {
-			this.page = windowData.page;
-			console.log(this.page);
+		if (this.windowData.page) {
+			this.page = this.windowData.page;
 		}
 
 
-		const w = await fetch('https://min-api.cryptocompare.com/data/all/coinlist?summary=true');
+		const w = await fetch(
+				'https://min-api.cryptocompare.com/data/all/coinlist?summary=true'
+			);
 		let list = await w.json();
 
 		this.listTicker = list.Data;
 
 		this.tickers = JSON.parse(sessionStorage.tickers);
-		this.tickers.forEach(ticker => {
-			this.updateValueCoin(ticker.name);
-		})
+		this.tickers.forEach( ticker => {
+			subTicker(ticker.name, 
+				(tickerName, newPrice) => {
+					this.updateTicker(tickerName, newPrice)
+				})
+			}
+		)
 
 		this.filterCoin();
 	},
 
 	methods: {
-		updateValueCoin(Tname) {
-			setInterval( async () => {
-				const s = await fetch(`https://min-api.cryptocompare.com/data/price?fsym=${Tname}&tsyms=USD&api_key=b4fa1f778f7b1ea5fb50ac826b38e1eb7268f6d708dcb1cd72811a30d2efc3cc`);
-				let value = await s.json();
+		formatPrice(price) {
 
-				this.tickers.find(t => t.name == Tname).price = value.USD;
-			}, 10000);
+			if (price === "-" || price == undefined) {
+				return price;
+			}
+
+
+			return price > 1 ? price.toFixed(2) : price.toPrecision();
+		},
+
+		updateTicker(tickerNameNew, price) {
+			this.tickers
+				.filter(t => t.name == tickerNameNew)
+					.forEach(t => t.price = price);
 		},
 
 		tickerAdd() {
@@ -201,7 +235,12 @@ export default {
 				}
 
 				this.tickers.push(newTicker);
-				this.updateValueCoin(newTicker.name);
+
+				subTicker(newTicker.name, 
+					(tickerName, newPrice) => {
+						this.updateTicker(tickerName, newPrice)
+					}
+				)
 
 				sessionStorage.tickers = JSON.stringify(this.tickers);
 
@@ -275,7 +314,7 @@ export default {
 		filterPage() {
 			let tickersPage = this.tickers.filter(t => t.filter == 1)
 			this.numLastTicker = tickersPage.length;
- 
+
 
 			for (let i = 0; i < tickersPage.length; i++) {
 
@@ -293,6 +332,9 @@ export default {
 
 		tickerDelete(tickerKey) {
 			this.tickers = this.tickers.filter(t => t.name != tickerKey);
+			sessionStorage.tickers = JSON.stringify(this.tickers);
+
+			unsubTicker(tickerKey);
 		},
 
 		pageUp() {
