@@ -36,7 +36,7 @@ function nameInParameter(string, val) {
 	return ridOfCurrency(ridOfCurrency(nameTicker, val), val)
 }
 
-function ridOfCurrency(naрить оmeTicker, val) {
+function ridOfCurrency(nameTicker, val) {
 	return nameTicker.replace(`~${val}`, "");
 }
 
