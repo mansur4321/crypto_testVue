@@ -111,7 +111,6 @@ span {
 
 .wrapper .filter .filter__page {
   margin-bottom: 20px;
-  transition: .2s;
 }
 
 .wrapper .filter {
@@ -139,4 +138,8 @@ span {
 
 .wrapper .ddNone {
   display: none;
+}
+
+.wrapper .errorBackground {
+  background: #F3B5B5;
 }
