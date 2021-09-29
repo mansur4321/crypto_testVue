@@ -81,6 +81,7 @@
 			:class="{
 				'bdColor': sel == t,
 				'ddNone': t.filter == 0,
+				'errorBackground': t.errorBack == 0,
 			}">
 				<p class="currency__name">{{t.name}} - USD</p>
 				<p class="currency__price">{{t.price}}</p>
@@ -106,6 +107,7 @@ export default {
 				name: '',
 				price: '',
 				filter: 1,
+				errorBack: 1,  
 			},],
 
 			helpValueList: ['','','',''],
@@ -200,9 +202,12 @@ export default {
 		this.tickers = JSON.parse(sessionStorage.tickers);
 		this.tickers.forEach( ticker => {
 			subTicker(ticker.name, 
-				(tickerName, newPrice) => {
-					this.updateTicker(tickerName, newPrice)
-				})
+					[(tickerName, newPrice) => {
+						this.updateTicker(tickerName, newPrice)
+					}, (tickerName, key) => {
+						this.socketError(tickerName, key)
+					}]
+				)
 			}
 		)
 
@@ -237,10 +242,12 @@ export default {
 				this.tickers.push(newTicker);
 
 				subTicker(newTicker.name, 
-					(tickerName, newPrice) => {
+					[(tickerName, newPrice) => {
 						this.updateTicker(tickerName, newPrice)
-					}
-				)
+					}, (tickerName, key) => {
+						this.socketError(tickerName, key)
+					}]
+				);
 
 				sessionStorage.tickers = JSON.stringify(this.tickers);
 
@@ -328,6 +335,14 @@ export default {
 
 		warning_delValue() {
 			this.warning = '';
+		},
+
+		socketError(ticker, key) {
+			if(key == 0){
+				this.tickers.filter(t => t.name == ticker).forEach(t => t.errorBack = 0);
+			}else if(key == 1){
+				this.tickers.filter(t => t.name == ticker).forEach(t => t.errorBack = 1);
+			}
 		},
 
 		tickerDelete(tickerKey) {
