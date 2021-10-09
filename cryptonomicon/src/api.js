@@ -11,8 +11,9 @@ const name = {
 	USD: 'USD',
 }
 
-let subscribedTickers = new Map();//[название, функция]
+let subscribedTickers = new Map();//[название, массив с двумя функциями]
 let countIn = new Map();//[название, валюта в которой считаем]
+let currensyValueBTC = new Map();//[название, размер валюты в биткойнах]
 const socket = new WebSocket(`wss://streamer.cryptocompare.com/v2?api_key=${API_KEY_SOCKET}`);
 let priceBTC = 1;
 
@@ -46,14 +47,16 @@ function alternativeSubMethod(ticker) {
 		socket.send(websocketSubMessage(name.BTC, name.USD));
 	}
 
-console.log(1);
+
 	socket.send(websocketSubMessage(ticker, name.BTC));
 }
 
 function subToCurrensyError(PARAMETER) {
 	const sub = subscribedTickers.get(nameInParameter(PARAMETER, name.BTC))
 	console.log(nameInParameter(PARAMETER, name.BTC));
+
 	let error = sub[1];
+
 	error(nameInParameter(PARAMETER, name.BTC), keyError.on);
 
 	return
@@ -78,6 +81,11 @@ socket.addEventListener('message', (infoMess) => {
 
 	if (FROMSYMBOL == name.BTC) {
 		priceBTC = PRICE;
+
+
+		currensyValueBTC.forEach((value, key) => {
+			subToCurrensy(key, value * priceBTC);
+		});
 	}
 
 	if (MESSAGE == messageError) {
@@ -99,6 +107,7 @@ socket.addEventListener('message', (infoMess) => {
 	}
 
 	if(TOSYMBOL == name.BTC) {
+		currensyValueBTC.set(FROMSYMBOL, PRICE)
 		PRICE = PRICE * priceBTC;
 
 		subToCurrensy(FROMSYMBOL, PRICE);
