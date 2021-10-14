@@ -1,4 +1,5 @@
 let API_KEY_SOCKET = 'ef967394f6f8d36a024577928cd403fd5a15cc43e2cf3757642376e8e887c24a';
+const socket = new WebSocket(`wss://streamer.cryptocompare.com/v2?api_key=${API_KEY_SOCKET}`);
 const aggregateIndex = '5';
 const messageError = 'INVALID_SUB';
 
@@ -14,8 +15,10 @@ const name = {
 let subscribedTickers = new Map();//[название, массив с двумя функциями]
 let countIn = new Map();//[название, валюта в которой считаем]
 let currensyValueBTC = new Map();//[название, размер валюты в биткойнах]
-const socket = new WebSocket(`wss://streamer.cryptocompare.com/v2?api_key=${API_KEY_SOCKET}`);
 let priceBTC = 1;
+
+let myWorker = new SharedWorker("./workers/newWorker.js");
+myWorker.port.start();
 
 
 function websocketSubMessage(ticker, countCurrensy) {
@@ -34,7 +37,7 @@ function websocketUnsubMessage(ticker, countCurrensy) {
 
 function nameInParameter(string, val) {
 	let nameTicker = string.slice(9);
-	return ridOfCurrency(ridOfCurrency(nameTicker, val), val)
+	return ridOfCurrency(ridOfCurrency(nameTicker, val), val);
 }
 
 function ridOfCurrency(nameTicker, val) {
@@ -53,7 +56,6 @@ function alternativeSubMethod(ticker) {
 
 function subToCurrensyError(PARAMETER) {
 	const sub = subscribedTickers.get(nameInParameter(PARAMETER, name.BTC))
-	console.log(nameInParameter(PARAMETER, name.BTC));
 
 	let error = sub[1];
 
@@ -74,10 +76,18 @@ function subToCurrensy(FROMSYMBOL, PRICE) {
 	return
 }
 
-socket.addEventListener('message', (infoMess) => {
-	let {TYPE, FROMSYMBOL, PRICE, MESSAGE, PARAMETER, TOSYMBOL} = JSON.parse(infoMess.data);
-	console.log(infoMess.data);
+myWorker.port.onmessage = function(a) {
+	console.log(a);
+}
 
+socket.addEventListener('message', infoMess => {
+	let {TYPE, FROMSYMBOL, PRICE, MESSAGE, PARAMETER, TOSYMBOL} = JSON.parse(infoMess.data);
+	//console.log(infoMess.data);
+
+
+	// if (!subscribedTickers.has(FROMSYMBOL)) {
+	// 	return
+	// }
 
 	if (FROMSYMBOL == name.BTC) {
 		priceBTC = PRICE;
@@ -125,6 +135,7 @@ export const subTicker = (tickerS, cb_add) => {
 	subscribedTickers.set(tickerS, cb_add);
 	countIn.set(tickerS, name.USD);
 
+	myWorker.port.postMessage(tickerS);
 	socket.send(websocketSubMessage(tickerS, name.USD));
 }
 
@@ -134,8 +145,8 @@ export const unsubTicker = tickerD => {
 	countIn.delete(tickerD);
 	subscribedTickers.delete(tickerD);
 
+	//myWorker.port.postMessage([tickerD, countCurrensy, 'unsub'])[tickerS, name.USD, 'sub']
 	socket.send(websocketUnsubMessage(tickerD, countCurrensy));
 }
 
 
-//менять стоимость сломанной валюты через обновления стоимости биткойна надо а ты дуралей и не понял (напоминалка)

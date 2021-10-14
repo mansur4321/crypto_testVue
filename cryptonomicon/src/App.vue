@@ -84,7 +84,7 @@
 				'errorBackground': t.errorBack == 0,
 			}">
 				<p class="currency__name">{{t.name}} - USD</p>
-				<p class="currency__price">{{formatPrice(t.price)}}</p>
+				<p class="currency__price">{{t.price}}</p>
 				<div class="btn"><a
 				@click="tickerDelete(t.name)"
 				href="#" class="currency__btnDel">Удалить</a></div>
@@ -215,15 +215,15 @@ export default {
 	},
 
 	methods: {
-		formatPrice(price) {
+		// formatPrice(price) {
 
-			if (price === "-" || price == undefined) {
-				return price;
-			}
+		// 	if (price === "-" || price == undefined) {
+		// 		return price;
+		// 	}
 
 
-			return price > 1 ? price.toFixed(2) : price.toPrecision();
-		},
+		// 	return price > 1 ? price.toFixed(2) : price.toPrecision();
+		// },
 
 		updateTicker(tickerNameNew, price) {
 			this.tickers
