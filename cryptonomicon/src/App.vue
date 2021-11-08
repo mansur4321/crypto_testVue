@@ -72,7 +72,7 @@
 					type="text" class="filter-currency">
 				</div>
 			</div>
-			<hr style="width: 800px;">
+			<line-width />
 			<div 
 			v-for="t of tickers"
 			@click="sel = t" 
@@ -89,7 +89,7 @@
 				@click="tickerDelete(t.name)"
 				href="#" class="currency__btnDel">Удалить</a></div>
 			</div>
-			<hr style="width: 800px;">
+			<line-width />
 		</div>
 	</div>		
 </template>
@@ -98,7 +98,15 @@
 
 import {subTicker, unsubTicker} from './api.js';
 
+import lineWidth from './components/lineWidth.vue';
+
+
 export default {
+
+	components: {
+		lineWidth
+	},
+
 	data() {
 		return {
 			ticker: '',
