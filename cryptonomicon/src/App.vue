@@ -1,58 +1,17 @@
 <template>
 	<div class="wrapper">
-		<div class="newCurrency">
-			<input
-			@keydown.enter="tickerAdd"
-			type="text" placeholder="name" class="newCurrency__add"
-			v-model="ticker">
-			<div 
-			class="newCurrency__help">
-				<div 
-				:class="{
-					'dsNone': ticker == '',
-					'dcNone': helpValueList[0] == '',
-				}"
-				class="newCurrency__help_elem"
-				@click="replace(0)"
-				>{{helpValueList[0]}}</div>
-
-				<div		
-				:class="{
-					'dsNone': ticker == '',
-					'dcNone': helpValueList[1] == '',
-				}"
-			 	class="newCurrency__help_elem"
-			 	@click="replace(1)"
-			 	>{{helpValueList[1]}}</div>
-
-				<div			
-				:class="{
-					'dsNone': ticker == '',
-					'dcNone': helpValueList[2] == '',
-				}"
-			 	class="newCurrency__help_elem" 
-			 	@click="replace(2)"
-			 	>{{helpValueList[2]}}</div>
-
-				<div			
-				:class="{
-					'dsNone': ticker == '',
-					'dcNone': helpValueList[3] == '',
-				}"
-				class="newCurrency__help_elem"
-				@click="replace(3)"
-				>{{helpValueList[3]}}</div>
-
-			</div>
-			<span>{{warning}}</span>
-			<a 
-			@click="tickerAdd"
-			href="#" class="newCurrency__btnAdd">Добавить</a>
-		</div>
+		<add-ticker 
+			@add-tick="tickerAdd" 
+			:helpValueList="helpValueList"
+			@help-tick-add="help"
+			@warning-del-value="warning_delValue"
+			:warning="warning"
+		/>
 
 		<div 
 		v-if="tickers.length"
 		class="list-currency">
+
 			<div class="filter">
 				<div class="filter__page">
 					<a 
@@ -72,7 +31,9 @@
 					type="text" class="filter-currency">
 				</div>
 			</div>
+
 			<line-width />
+
 			<div 
 			v-for="t of tickers"
 			@click="sel = t" 
@@ -89,6 +50,7 @@
 				@click="tickerDelete(t.name)"
 				href="#" class="currency__btnDel">Удалить</a></div>
 			</div>
+
 			<line-width />
 		</div>
 	</div>		
@@ -99,18 +61,18 @@
 import {subTicker, unsubTicker} from './api.js';
 
 import lineWidth from './components/lineWidth.vue';
+import AddTicker from './components/AddTicker.vue';
 
 
 export default {
 
 	components: {
-		lineWidth
+		lineWidth,
+		AddTicker,
 	},
 
 	data() {
 		return {
-			ticker: '',
-
 			tickers: [{
 				name: '',
 				price: '',
@@ -152,11 +114,6 @@ export default {
 	},
 
 	watch: {
-		ticker() {
-			this.warning_delValue();
-			this.help();
-		},
-
 		tickers() {
 			this.filterCoin();
 			this.numLastTicker -= 1;
@@ -239,11 +196,11 @@ export default {
 					.forEach(t => t.price = price);
 		},
 
-		tickerAdd() {
+		tickerAdd(ticker) {
 
-			if (this.tickers.find(t => t.name.toUpperCase() == this.ticker.toUpperCase()) == undefined) {
+			if (this.tickers.find(t => t.name.toUpperCase() == ticker.toUpperCase()) == undefined) {
 				const newTicker = {
-					name: this.ticker,
+					name: ticker,
 					price: '-'
 				}
 
@@ -259,7 +216,6 @@ export default {
 
 				sessionStorage.tickers = JSON.stringify(this.tickers);
 
-				this.ticker = '';
 			}else {
 				this.warning = 'Такая валюта уже есть';
 			}
@@ -268,18 +224,13 @@ export default {
 			this.filterCoin();
 		},
 
-		replace(key) {
-			this.ticker = this.helpValueList[key];
-			this.tickerAdd();
-		},
-
-		help() {
+		help(ticker) {
 			let key = 0;
 
 
 			for (let val in this.listTicker) {
 
-				if(this.listTicker[`${val}`].Symbol.indexOf(`${this.ticker}`) + 1) {
+				if(this.listTicker[`${val}`].Symbol.indexOf(`${ticker}`) + 1) {
 
 					if (key < 4) {
 						this.helpValueList[key] = this.listTicker[`${val}`].Symbol;
@@ -301,7 +252,7 @@ export default {
 			}
 
 
-			if (this.ticker == 0) {
+			if (ticker == 0) {
 
 				for (let i = 0; i < 4; i++) {
 					this.helpValueList[i] = '';
