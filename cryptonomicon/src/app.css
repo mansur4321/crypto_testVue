@@ -1,9 +1,15 @@
 body {
   font-family: "Roboto", sans-serif;
+  background: url('img/fon.png') center center / 100% 100% no-repeat;
+  height: 100vh;
 }
 
-.q {
-  
+.filter-currency {
+  background: rgba(0, 0, 0, .7);
+  border-radius: 0px;
+  font-size: 16px;
+  padding: 6px 10px 6px;
+  color: #fff;
 }
 
 .wrapper {
@@ -25,18 +31,20 @@ span {
   -webkit-box-direction: normal;
       -ms-flex-direction: column;
           flex-direction: column;
-  border-radius: 15px;
   -webkit-box-align: start;
       -ms-flex-align: start;
           align-items: flex-start;
   margin-bottom: 50px;
   max-width: 280px;
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .wrapper .newCurrency__add {
   max-width: 250px;
   padding: 6px 10px;
   font-size: 22px;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
 }
 
 .wrapper .newCurrency__help {
@@ -53,6 +61,7 @@ span {
   margin-right: 5px;
   color: #fff;
   font-size: 14px;
+  color: #000;
 }
 
 .wrapper .newCurrency__btnAdd {
@@ -60,8 +69,97 @@ span {
   color: #fff;
   background: #1C95DB;
   text-decoration: none;
-  padding: 11px 19px;
-  border-radius: 5px;
+  padding: 11px 30px;
+  background: #000;
+}
+
+.form {
+  position: absolute;
+  top: 40%;
+  left: 35%;
+  background:  rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 290px
+}
+
+.form-ban {
+  position: absolute;
+  right: 5%;
+  top: 20%;
+  background:  rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: 290px
+}
+
+.form-ban__btn {
+  padding: 5px 10px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.form-ban__input {
+  padding: 5px 10px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+.form__login {
+  max-width: 250px;
+  padding: 6px 10px;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.form__parol {
+  max-width: 250px;
+  padding: 6px 10px;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+
+
+.ban {
+  position: absolute;
+  right: 5%;
+  padding: 5px 10px;
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+}
+
+.form__reg {
+  padding: 5px 10px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  text-decoration: none;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.form__entry {
+  padding: 5px 10px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  text-decoration: none;
 }
 
 .wrapper .list-currency {
@@ -81,33 +179,37 @@ span {
 .wrapper .currency {
   border: 2px solid #717171;
   padding: 35px;
-  border-radius: 10px;
+  border-radius: 5px;
   margin: 0px 40px 20px 0px;
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .wrapper .currency__name {
   font-size: 24px;
   text-align: center;
   margin: 0px;
+  color: #747474;
 }
 
 .wrapper .currency__price {
   text-align: center;
   font-size: 22px;
+  color: #747474;
   margin-bottom: 35px;
 }
 
 .wrapper .currency__btnDel {
   color: #fff;
-  background: #1C95DB;
+  background: rgba(0, 0, 0, .7);
   text-decoration: none;
   padding: 11px 22px;
-  border-radius: 5px;
+  border-radius: 2px;
+
 }
 
 .wrapper .filter .filter__page .filter__page_button {
   padding: 7px 10px;
-  background: #B43ED1;
+  background: #000;
   border-radius: 15px;
   margin-right: 10px;
   color: #fff;
@@ -145,5 +247,5 @@ span {
 }
 
 .wrapper .errorBackground {
-  background: #F3B5B5;
+  background: #990000;
 }

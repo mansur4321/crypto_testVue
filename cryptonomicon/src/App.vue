@@ -1,9 +1,63 @@
 <template>
-	<div class="wrapper">
+
+	<a href="#" 
+	@click="exit()"
+	v-if="user.login != undefined"
+	class="form-ban__btn" >
+		exit
+	</a>
+	<form 
+	v-if="user.login == undefined"
+	class="form">
+		<input
+		v-model="login"
+		type="text" class="form__login" placeholder="Login">
+		<input 
+		v-model="parol"
+		type="text" class="form__parol" placeholder="Parol">
+		<div class="wrapper__btn">
+			<a href="#" 
+			@click="registration()"
+			class="form__reg">
+				registration
+			</a>
+
+			<a href="#" 
+			@click="entry()"
+			class="form__entry">
+				entry
+			</a>
+		</div>
+	</form>
+
+	<a href="#" 
+	v-if="user.isAdmin"
+	@click="formBan()"
+	class="ban">
+		Ban
+	</a>
+
+	<form 
+	v-if="banFormIndex"
+	class="form-ban">
+		<input 
+		v-model="ban" 
+		class="form-ban__input">
+		<div>
+			<a href="#" 
+			@click="banUser()"
+			class="form-ban__btn" 
+			>banned</a>
+		</div>
+	</form>		
+
+	<div 
+	v-if="user.login != undefined"
+	class="wrapper">
 		<div class="newCurrency">
 			<input
 			@keydown.enter="tickerAdd"
-			type="text" placeholder="name" class="newCurrency__add"
+			type="text" placeholder="Search" class="newCurrency__add"
 			v-model="ticker">
 			<div 
 			class="newCurrency__help">
@@ -47,7 +101,7 @@
 			<span>{{warning}}</span>
 			<a 
 			@click="tickerAdd"
-			href="#" class="newCurrency__btnAdd">Добавить</a>
+			href="#" class="newCurrency__btnAdd">Add</a>
 		</div>
 
 		<div 
@@ -58,18 +112,17 @@
 					<a 
 					v-if="page > 1"
 					@click="pageDown"
-					class="pageButton-currency-back filter__page_button">back</a>
+					class="pageButton-currency-back filter__page_button">Back</a>
 					<a 
 					v-if="page * 3 < numLastTicker"
 					@click="pageUp"
-					class="pageButton-currency-next filter__page_button">next</a>
+					class="pageButton-currency-next filter__page_button">Next</a>
 				</div>
 
 				<div class="filter__coin">
-					<span style="color: #A556B6">FILTER -</span>
 					<input 
 					v-model="tickerFilter"
-					type="text" class="filter-currency">
+					type="text" class="filter-currency" placeholder="FILTER">
 				</div>
 			</div>
 			<hr style="width: 800px;">
@@ -87,7 +140,7 @@
 				<p class="currency__price">{{ formatPrice(t.price) }}</p>
 				<div class="btn"><a
 				@click="tickerDelete(t.name)"
-				href="#" class="currency__btnDel">Удалить</a></div>
+				href="#" class="currency__btnDel">Delete</a></div>
 			</div>
 			<hr style="width: 800px;">
 		</div>
@@ -96,19 +149,27 @@
 
 <script>
 
-import {subTicker, unsubTicker} from './api.js';
+import {subTicker, unsubTicker} from './API/api.js';
+
+import {regUser, regAdmin} from './user.js';
 
 export default {
 	data() {
 		return {
+
+			users: [],
+
+			user: {},
+
+			login: '',
+			parol: '',
+
+			ban: '',
+			banFormIndex: false,
+
 			ticker: '',
 
-			tickers: [{
-				name: '',
-				price: '',
-				filter: 1,
-				errorBack: 1,  
-			},],
+			tickers: [],
 
 			helpValueList: ['','','',''],
 
@@ -220,7 +281,7 @@ export default {
 			if (price === "-" || price == undefined || price === "") {
 				return price;
 			}
-			console.log(price);
+
 
 			return price > 1 ? price.toFixed(2) : price.toPrecision(2);
 		},
@@ -229,6 +290,94 @@ export default {
 			this.tickers
 				.filter(t => t.name == tickerNameNew)
 					.forEach(t => t.price = price);
+		},
+
+		exit() {
+			this.user = {};
+
+
+			if (this.banFormIndex) {
+				this.formBan();
+			}
+		},
+
+		registration() {
+
+			if (this.login == '' || this.parol == '') {
+				alert('вы не заполнили строку логина или пароля')
+				return
+			}
+
+			if (this.login == 'admin' && this.parol == 'admin') {
+				this.user = regAdmin(this.login, this.parol);
+				
+			}else {
+
+				if (this.users.find(user => user.login == this.login)) {
+					alert('такой логин уже есть');
+					return
+				}
+
+
+				this.user = regUser(this.login, this.parol);
+				this.users.push(Object.assign({}, this.user));
+			}
+
+
+			this.nullParLog();
+		},
+
+		entry() {
+
+			if (this.login == '' || this.parol == '') {
+				alert('вы не заполнили строку логина или пароля')
+				return
+			}
+
+			if (this.login == 'admin' && this.parol == 'admin') {
+				this.user = regAdmin(this.login, this.parol);
+			}else {
+				if (this.users.find(user => user.login == this.login)) {
+					let user = this.users.find(user => user.login == this.login);
+
+
+					if (user.parol == this.parol) {
+						this.user = this.users.find(user => user.login == this.login);
+					}
+					
+					if (this.user.banUser == true) {
+						this.user = {};
+						alert('Этот пользователь забанен');
+
+						return
+					}
+				}else {
+					alert('Пользователь не зарегистрирован');
+				}
+			}
+
+
+			this.nullParLog();
+		},
+
+		nullParLog() {
+			this.login = '';
+			this.parol = '';
+		},
+
+		banUser() {
+			if (this.ban == '') {
+				alert('не указан пользователь');
+				return
+			}
+
+
+			this.users.find(user => user.login == this.ban).banUser = true;
+
+		},
+
+		formBan() {
+			this.banFormIndex = this.banFormIndex ? false : true;
 		},
 
 		tickerAdd() {
@@ -249,6 +398,7 @@ export default {
 					}]
 				);
 
+				
 				sessionStorage.tickers = JSON.stringify(this.tickers);
 
 				this.ticker = '';
