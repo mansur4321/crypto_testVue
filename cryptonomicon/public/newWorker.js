@@ -27,11 +27,12 @@ function websocketUnsubMessage(ticker, countCurrensy) {
 self.addEventListener('connect', (e) => {
 	var port = e.ports[0];
 	connections++;
-	
+
 
 	port.addEventListener('message', (dataCur) => {
 		let {name, countIn, operation} = dataCur.data;
-		console.log(name, countIn)
+		connections++;
+
 
 		if (operation == indexOperation.sub) {
 			socket.send(websocketSubMessage(name, countIn));
@@ -41,8 +42,12 @@ self.addEventListener('connect', (e) => {
 	});
 
 	socket.addEventListener('message', dataMess => {
+		//console.log(dataMess.data);
 		port.postMessage(JSON.parse(dataMess.data));
 	})
 
 	port.start()
 });
+
+
+

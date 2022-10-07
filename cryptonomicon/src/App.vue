@@ -149,7 +149,7 @@
 
 <script>
 
-import {subTicker, unsubTicker} from './API/api.js';
+import {subTicker, unsubTicker} from './api.js';
 
 import {regUser, regAdmin} from './user.js';
 
@@ -398,7 +398,6 @@ export default {
 					}]
 				);
 
-				
 				sessionStorage.tickers = JSON.stringify(this.tickers);
 
 				this.ticker = '';

@@ -62,6 +62,7 @@ function subToCurrensy(FROMSYMBOL, PRICE) {
 
 myWorker.port.addEventListener('message', infoMess => {
 	let {TYPE, FROMSYMBOL, PRICE, MESSAGE, PARAMETER, TOSYMBOL} = infoMess.data;
+	console.log(infoMess.data);
 
 
 	if (FROMSYMBOL == name.BTC) {
@@ -109,7 +110,6 @@ myWorker.port.addEventListener('message', infoMess => {
 export const subTicker = (tickerS, cb_add) => {
 	subscribedTickers.set(tickerS, cb_add);
 	countIn.set(tickerS, name.USD);
-	
 
 	myWorker.port.postMessage({name: tickerS, countIn: name.USD, operation: 'sub'});
 }
@@ -120,5 +120,5 @@ export const unsubTicker = tickerD => {
 	countIn.delete(tickerD);
 	subscribedTickers.delete(tickerD);
 
-	myWorker.port.postMessage({name: tickerD, countIn: countCurrensy, operation: 'unsub'});
+	myWorker.port.postMessage({name: tickerD, countIn: countCurrensy, operation: 'unsub'})
 }
